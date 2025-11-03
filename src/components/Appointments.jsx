@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { Calendar, Plus, Search, CheckCircle, Clock, XCircle, MoreVertical, Edit, Trash2, User, Copy, Car, Hotel as Hospital, Filter } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -8,9 +9,9 @@ import { Badge } from '@/components/ui/badge';
 import { toast } from '@/components/ui/use-toast';
 import { getAppointments, updateAppointmentStatus } from '@/lib/storage';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { cn } from '@/lib/utils';
 import { Loader2 } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import WeeklyCalendar from '@/components/WeeklyCalendar';
 
 const statusConfig = {
   'Onaylandı': { icon: CheckCircle, color: 'bg-green-100 text-green-700', label: 'Onaylandı' },
@@ -19,33 +20,13 @@ const statusConfig = {
   'Tamamlandı': { icon: CheckCircle, color: 'bg-blue-100 text-blue-700', label: 'Tamamlandı' },
 };
 
-const CalendarDay = ({ date, isSelected, onClick }) => {
-  const dayName = date.toLocaleDateString('tr-TR', { weekday: 'short' });
-  const dayNumber = date.getDate();
-
-  return (
-    <button
-      onClick={onClick}
-      className={cn(
-        "flex flex-col items-center justify-center w-14 h-20 rounded-xl transition-all duration-200",
-        isSelected
-          ? "bg-primary text-primary-foreground shadow-lg"
-          : "bg-card hover:bg-accent"
-      )}
-    >
-      <span className={cn("text-xs uppercase", isSelected ? 'opacity-80' : 'text-muted-foreground')}>{dayName}</span>
-      <span className="text-xl font-bold mt-1">{dayNumber}</span>
-    </button>
-  );
-};
-
-
-const Appointments = ({ onViewChange }) => {
-  const [selectedDate, setSelectedDate] = useState(new Date("2025-10-23"));
+const Appointments = () => {
+  const [selectedDate, setSelectedDate] = useState(new Date());
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const navigate = useNavigate();
 
   const loadAppointments = useCallback(async (date) => {
     setLoading(true);
@@ -85,54 +66,20 @@ const Appointments = ({ onViewChange }) => {
     }
   };
 
-  const handleAction = (action, payload) => {
-      onViewChange(action, payload);
-  };
-  
-  const calendarDates = useMemo(() => {
-      const dates = [];
-      for (let i = -3; i <= 3; i++) {
-          const date = new Date(selectedDate);
-          date.setDate(date.getDate() + i);
-          dates.push(date);
-      }
-      return dates;
-  }, [selectedDate]);
-
   return (
     <div className="space-y-6">
       <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold">Randevu Yönetimi</h1>
-          <p className="text-muted-foreground mt-1">Günün randevu akışını buradan yönetin.</p>
+          <p className="text-muted-foreground mt-1">Haftalık randevu akışını buradan yönetin.</p>
         </div>
-        <Button className="bg-primary hover:bg-primary/90 text-primary-foreground gap-2" onClick={() => handleAction('add-appointment')}>
+        <Button className="bg-primary hover:bg-primary/90 text-primary-foreground gap-2" onClick={() => navigate('/add-appointment')}>
           <Plus className="w-4 h-4" />
           Yeni Randevu
         </Button>
       </motion.div>
 
-      {/* Calendar Strip */}
-      <div className="flex items-center justify-between gap-2">
-          <div className="flex gap-2">
-              {calendarDates.map((date, i) => (
-                  <CalendarDay 
-                    key={i} 
-                    date={date} 
-                    isSelected={date.toDateString() === selectedDate.toDateString()}
-                    onClick={() => setSelectedDate(date)}
-                  />
-              ))}
-          </div>
-          <Popover>
-              <PopoverTrigger asChild>
-                <Button variant="outline" size="icon"><Calendar className="w-5 h-5"/></Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0">
-                <div className="p-4 text-center">Tarih: {selectedDate.toLocaleDateString('tr-TR')}</div>
-              </PopoverContent>
-          </Popover>
-      </div>
+      <WeeklyCalendar selectedDate={selectedDate} setSelectedDate={setSelectedDate} />
 
       <Card className="p-4">
         <div className="flex flex-col sm:flex-row gap-4">
@@ -144,13 +91,13 @@ const Appointments = ({ onViewChange }) => {
               <PopoverTrigger asChild>
                   <Button variant="outline" className="gap-2">
                       <Filter className="w-4 h-4" />
-                      Filtrele
+                      Filtrele ({statusFilter === 'all' ? 'Tümü' : statusFilter})
                   </Button>
               </PopoverTrigger>
               <PopoverContent className="w-56 p-2">
                   <div className="grid gap-1">
                   {['all', 'Bekliyor', 'Onaylandı', 'İptal Edildi', 'Tamamlandı'].map(status => (
-                      <Button key={status} variant={statusFilter === status ? "default" : "ghost"} size="sm" className="justify-start" onClick={() => setStatusFilter(status)}>
+                      <Button key={status} variant={statusFilter === status ? "secondary" : "ghost"} size="sm" className="justify-start" onClick={() => setStatusFilter(status)}>
                           {status === 'all' ? 'Tüm Durumlar' : status}
                       </Button>
                   ))}
@@ -207,10 +154,10 @@ const Appointments = ({ onViewChange }) => {
                            <DropdownMenu>
                               <DropdownMenuTrigger asChild><Button variant="ghost" size="icon"><MoreVertical className="w-4 h-4" /></Button></DropdownMenuTrigger>
                               <DropdownMenuContent align="end">
-                                <DropdownMenuItem onClick={() => handleAction('edit-appointment', apt)}>
+                                <DropdownMenuItem onClick={() => navigate(`/appointment/${apt.id}/edit`)}>
                                   <Edit className="mr-2 h-4 w-4" /> Düzenle
                                 </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => handleAction('customer-profile', apt.customer_id)}>
+                                <DropdownMenuItem onClick={() => navigate(`/customer/${apt.customer_id}`)}>
                                   <User className="mr-2 h-4 w-4" /> Müşteri Profili
                                 </DropdownMenuItem>
                                  <DropdownMenuItem onClick={() => toast({title: "Yakında!"})}>
