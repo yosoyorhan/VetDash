@@ -16,7 +16,7 @@ const Sidebar = () => {
   const menuItems = [
     { id: 'dashboard', path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { id: 'appointments', path: '/appointments', label: 'Randevular', icon: CalendarCheck },
-    { id: 'customers', path: '/customers', label: 'Müşteriler', icon: HeartHandshake },
+    { id: 'customers', path: '/customers', label: 'Müşteri Yönetimi', icon: HeartHandshake },
     { id: 'animals', path: '/animals', label: 'Hayvanlar', icon: Beef },
     { id: 'inventory', path: '/inventory', label: 'Envanter', icon: Package },
     { id: 'payments', path: '/payments', label: 'Ödemeler', icon: DollarSign },
