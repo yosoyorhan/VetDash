@@ -106,9 +106,46 @@ export const deleteAnimal = async (animalId) => {
 
 // CUSTOMER FUNCTIONS
 export const getCustomersWithBalance = async () => {
-    const { data, error } = await supabase.rpc('get_customers_with_balance');
-    if (error) { console.error('Error fetching customers with balance:', error); throw error; }
-    return data;
+    // Step 1: Fetch customers with their balance from the existing RPC function.
+    // This is assumed to be efficient and correct.
+    const { data: customers, error: rpcError } = await supabase.rpc('get_customers_with_balance');
+    if (rpcError) {
+        console.error('Error fetching customers with balance:', rpcError);
+        throw rpcError;
+    }
+    if (!customers) return [];
+
+    const clinicId = await getUserClinicId();
+    if (!clinicId) return customers.map(c => ({ ...c, animals_count: 0 })); // Return basic data if no clinic id
+
+    // Step 2: Fetch all animals for the current clinic that are associated with a customer.
+    const { data: animals, error: animalsError } = await supabase
+        .from('animals')
+        .select('customer_id')
+        .eq('clinic_id', clinicId)
+        .not('customer_id', 'is', null);
+
+    if (animalsError) {
+        console.error('Error fetching animals to count:', animalsError);
+        // Don't throw, just return customers without animal counts
+        return customers.map(c => ({ ...c, animals_count: 0 }));
+    }
+
+    // Step 3: Create a lookup map for animal counts.
+    const animalCounts = animals.reduce((acc, animal) => {
+        if (animal.customer_id) {
+            acc[animal.customer_id] = (acc[animal.customer_id] || 0) + 1;
+        }
+        return acc;
+    }, {});
+
+    // Step 4: Merge the animal counts into the customer data.
+    const customersWithAnimalCount = customers.map(customer => ({
+        ...customer,
+        animals_count: animalCounts[customer.id] || 0
+    }));
+
+    return customersWithAnimalCount;
 };
 
 export const getCustomerById = async (customerId) => {
