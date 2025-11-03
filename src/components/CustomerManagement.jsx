@@ -54,14 +54,14 @@ const CustomerManagement = () => { // onViewChange prop'unu kaldır
         className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
       >
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Müşteriler</h1>
-          <p className="text-muted-foreground mt-1">{filteredCustomers.length} müşteri bulundu.</p>
+          <h1 className="text-3xl font-bold text-foreground">Müşteri Yönetimi</h1>
+          <p className="text-muted-foreground mt-1">{filteredCustomers.length} kayıtlı müşteri bulundu.</p>
         </div>
         <div className="w-full sm:w-auto flex items-center gap-2">
-            <div className="relative flex-grow">
+            <div className="relative flex-grow sm:w-80">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                 <Input
-                    placeholder="İsim, e-posta, telefon ara..."
+                    placeholder="İsim veya e-posta ile müşteri ara..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="pl-10 w-full"
@@ -70,7 +70,7 @@ const CustomerManagement = () => { // onViewChange prop'unu kaldır
             {/* onClick'i yeni handleViewChange fonksiyonunu kullanacak şekilde güncelle */}
             <Button className="gap-2" onClick={() => handleViewChange('add-customer')}>
               <Plus className="w-4 h-4" />
-              <span className="hidden sm:inline">Yeni Müşteri</span>
+              <span>Yeni Müşteri</span>
             </Button>
         </div>
       </motion.div>
