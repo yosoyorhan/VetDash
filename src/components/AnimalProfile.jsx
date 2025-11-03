@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Edit, Trash2, Droplet, Syringe, HeartPulse, Stethoscope, Plus, Beef, User, Phone, Mail, Clock, CalendarCheck, Sparkles, Bot, Send, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -36,7 +37,9 @@ const AnimatedCard = ({ children, className, ...props }) => (
   </motion.div>
 );
 
-const AnimalProfile = ({ animalId, onBack, onViewChange }) => {
+const AnimalProfile = () => {
+  const { animalId } = useParams();
+  const navigate = useNavigate();
   const [animal, setAnimal] = useState(null);
   const [healthRecords, setHealthRecords] = useState([]);
   const [auditLogs, setAuditLogs] = useState([]);
@@ -72,11 +75,11 @@ const AnimalProfile = ({ animalId, onBack, onViewChange }) => {
   }), [healthRecords]);
 
   const handleAddRecord = (type) => {
-    onViewChange('add-health-record', { animalId, recordType: type });
+    navigate(`/animal/${animalId}/health-record/add/${type}`);
   };
 
   const handleEditRecord = (record) => {
-    onViewChange('edit-health-record', { animalId, recordType: record.event_type, recordId: record.id });
+    navigate(`/animal/${animalId}/health-record/edit/${record.id}`);
   };
 
   const handleDeleteRecord = async (recordId) => {
@@ -93,14 +96,14 @@ const AnimalProfile = ({ animalId, onBack, onViewChange }) => {
     try {
       await deleteAnimal(animalId);
       toast({ title: 'Başarıyla Silindi', description: `${animal.name || 'Hayvan'} kaydı sistemden kaldırıldı.` });
-      onBack();
+      navigate('/animals');
     } catch (error) {
       toast({ title: 'Silme Başarısız', description: error.message, variant: 'destructive' });
     }
   };
 
   if (loading) return <div className="flex items-center justify-center h-96"><Loader2 className="w-12 h-12 text-primary animate-spin" /></div>;
-  if (!animal) return <div className="text-center py-12"><p className="text-foreground font-semibold">Hayvan profili bulunamadı.</p><Button onClick={onBack} className="mt-4">Listeye Dön</Button></div>;
+  if (!animal) return <div className="text-center py-12"><p className="text-foreground font-semibold">Hayvan profili bulunamadı.</p><Button onClick={() => navigate('/animals')} className="mt-4">Listeye Dön</Button></div>;
 
   const lastVaccination = vaccinations[0]?.event_date;
   const lastTreatment = treatments[0]?.event_date;
@@ -184,7 +187,7 @@ const AnimalProfile = ({ animalId, onBack, onViewChange }) => {
       <div className="space-y-6">
         <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" onClick={onBack}><ArrowLeft className="w-5 h-5 text-foreground" /></Button>
+            <Button variant="ghost" size="icon" onClick={() => navigate('/animals')}><ArrowLeft className="w-5 h-5 text-foreground" /></Button>
             <div>
               <h1 className="text-3xl font-bold text-foreground">{animal.name || 'İsimsiz'}</h1>
               <p className="text-muted-foreground font-mono">Küpe No: {animal.ear_tag_number || 'Belirtilmemiş'}</p>
@@ -192,7 +195,7 @@ const AnimalProfile = ({ animalId, onBack, onViewChange }) => {
           </div>
           <div className="flex gap-2">
             <Button variant="outline" className="bg-blue-500/10 text-blue-600 border-blue-300 hover:bg-blue-500/20" onClick={() => setIsAiPanelOpen(true)}><Bot className="w-4 h-4 mr-2" /> Yapay Zeka Asistanı</Button>
-            <Button variant="outline" onClick={() => onViewChange('edit-animal', animal.id)}><Edit className="w-4 h-4 mr-2" /> Düzenle</Button>
+            <Button variant="outline" onClick={() => navigate(`/animal/${animalId}/edit`)}><Edit className="w-4 h-4 mr-2" /> Düzenle</Button>
             <AlertDialog>
               <AlertDialogTrigger asChild><Button variant="destructive"><Trash2 className="w-4 h-4 mr-2" /> Sil</Button></AlertDialogTrigger>
               <AlertDialogContent>

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { ArrowLeft, Check, ChevronsUpDown, Loader2, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -61,7 +62,11 @@ const Combobox = ({ options, value, onChange, placeholder, disabled = false }) =
   );
 };
 
-const AddAnimalPage = ({ animalId, customerId: preselectedCustomerId, onBack, onSaveSuccess, onViewChange }) => {
+const AddAnimalPage = () => {
+  const { animalId } = useParams();
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const [formData, setFormData] = useState({
     name: '', ear_tag_number: '', species: '', breed: '', gender: 'Dişi', dob: '', status: 'Sağlıklı', location: '', customer_id: null, microchip_id: '', current_weight: ''
   });
@@ -69,7 +74,9 @@ const AddAnimalPage = ({ animalId, customerId: preselectedCustomerId, onBack, on
   const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+
   const isEditMode = !!animalId;
+  const preselectedCustomerId = location.state?.customerId;
   const isOwnerLocked = !!preselectedCustomerId;
 
   const formatDateForInput = (date) => {
@@ -117,11 +124,11 @@ const AddAnimalPage = ({ animalId, customerId: preselectedCustomerId, onBack, on
         }
       } catch (error) {
         toast({ title: 'Hata', description: 'Veriler yüklenirken bir sorun oluştu.', variant: 'destructive' });
-        if (onBack) onBack();
+        navigate(-1);
       } finally {
         setLoading(false);
       }
-    }, [animalId, isEditMode, preselectedCustomerId, onBack]);
+    }, [animalId, isEditMode, preselectedCustomerId, navigate]);
 
   useEffect(() => {
     loadInitialData();
@@ -136,9 +143,13 @@ const AddAnimalPage = ({ animalId, customerId: preselectedCustomerId, onBack, on
     }
     setIsSaving(true);
     try {
-        await saveAnimal(formData);
+        const savedAnimal = await saveAnimal(formData);
         toast({ title: "Başarılı!", description: `Hayvan bilgileri ${isEditMode ? 'güncellendi' : 'kaydedildi'}.` });
-        if (onSaveSuccess) onSaveSuccess();
+        if (isEditMode) {
+            navigate(`/animal/${animalId}`);
+        } else {
+            navigate('/animals');
+        }
     } catch (error) {
         toast({
           title: "Hata!",
@@ -170,7 +181,7 @@ const AddAnimalPage = ({ animalId, customerId: preselectedCustomerId, onBack, on
       className="space-y-6"
     >
       <div className="flex items-center gap-4">
-        <Button variant="outline" size="icon" onClick={onBack}>
+        <Button variant="outline" size="icon" onClick={() => navigate(-1)}>
           <ArrowLeft className="h-4 w-4" />
         </Button>
         <div>
@@ -212,7 +223,7 @@ const AddAnimalPage = ({ animalId, customerId: preselectedCustomerId, onBack, on
                             {customers.map(c => <SelectItem key={c.id} value={c.id}>{c.full_name}</SelectItem>)}
                         </SelectContent>
                     </Select>
-                    <Button type="button" variant="outline" size="icon" onClick={() => onViewChange('add-customer', { backTo: 'add-animal' })} disabled={isOwnerLocked}>
+                    <Button type="button" variant="outline" size="icon" onClick={() => navigate('/add-customer', { state: { from: location.pathname } })} disabled={isOwnerLocked}>
                         <Plus className="w-4 h-4"/>
                     </Button>
                 </div>
@@ -221,7 +232,7 @@ const AddAnimalPage = ({ animalId, customerId: preselectedCustomerId, onBack, on
             <div><Label>Güncel Ağırlık (kg)</Label><Input type="number" step="0.1" value={formData.current_weight || ''} onChange={e => handleInputChange('current_weight', e.target.value)} /></div>
             
             <div className="md:col-span-2 flex justify-end gap-2 pt-4">
-              <Button type="button" variant="ghost" onClick={onBack} disabled={isSaving}>İptal</Button>
+              <Button type="button" variant="ghost" onClick={() => navigate(-1)} disabled={isSaving}>İptal</Button>
               <Button type="submit" disabled={isSaving}>
                 {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 {isSaving ? 'Kaydediliyor...' : 'Kaydet'}

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Plus, Download, Loader2, MoreVertical, PawPrint, Tag, Hash, Edit } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Search, Plus, Download, Loader2, MoreVertical, PawPrint, Hash, Edit } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
@@ -10,13 +11,13 @@ import { toast } from '@/components/ui/use-toast';
 import { Badge } from '@/components/ui/badge';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
-
-const AnimalList = ({ onViewChange }) => {
+const AnimalList = () => {
   const [animals, setAnimals] = useState([]);
   const [customers, setCustomers] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState('all');
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   const loadData = useCallback(async () => {
     setLoading(true);
@@ -42,7 +43,6 @@ const AnimalList = ({ onViewChange }) => {
     return animals
       .filter(animal => {
         if (filterType === 'all') return true;
-        // A simple heuristic for categorization
         if (filterType === 'büyükbaş') return ['sığır (i̇nek)', 'at', 'koyun', 'keçi'].some(s => animal.species?.toLowerCase().includes(s));
         if (filterType === 'pet') return ['köpek', 'kedi', 'kuş', 'kemirgenler ve küçük memeliler', 'sürüngenler'].some(s => animal.species?.toLowerCase().includes(s));
         return animal.species?.toLowerCase() === filterType;
@@ -73,7 +73,6 @@ const AnimalList = ({ onViewChange }) => {
     }
   };
 
-
   return (
     <div className="space-y-6">
       <motion.div
@@ -90,7 +89,7 @@ const AnimalList = ({ onViewChange }) => {
             <Download className="w-4 h-4" />
             Dışa Aktar
           </Button>
-          <Button variant="action" className="gap-2" onClick={() => onViewChange('add-animal')}>
+          <Button variant="action" className="gap-2" onClick={() => navigate('/add-animal')}>
             <Plus className="w-4 h-4" />
             Yeni Hayvan
           </Button>
@@ -154,7 +153,7 @@ const AnimalList = ({ onViewChange }) => {
                                 className="border-b"
                             >
                                 <TableCell 
-                                    onClick={() => onViewChange('animal-profile', animal.id)}
+                                    onClick={() => navigate(`/animal/${animal.id}`)}
                                     className="cursor-pointer hover:bg-accent"
                                 >
                                     <div className="flex items-center gap-3">
@@ -182,11 +181,11 @@ const AnimalList = ({ onViewChange }) => {
                                          </Button>
                                       </DropdownMenuTrigger>
                                       <DropdownMenuContent align="end">
-                                         <DropdownMenuItem onClick={() => onViewChange('animal-profile', animal.id)}>
+                                         <DropdownMenuItem onClick={() => navigate(`/animal/${animal.id}`)}>
                                             <PawPrint className="mr-2 h-4 w-4" />
                                             <span>Profili Görüntüle</span>
                                          </DropdownMenuItem>
-                                         <DropdownMenuItem onClick={() => onViewChange('edit-animal', animal.id)}>
+                                         <DropdownMenuItem onClick={() => navigate(`/animal/${animal.id}/edit`)}>
                                             <Edit className="mr-2 h-4 w-4" />
                                             <span>Düzenle</span>
                                          </DropdownMenuItem>
@@ -207,7 +206,7 @@ const AnimalList = ({ onViewChange }) => {
                   <p className="text-muted-foreground mt-2 mb-6">Aradığınız kriterlere uygun hayvan yok veya henüz kayıt eklemediniz.</p>
                   <Button 
                     variant="action"
-                    onClick={() => onViewChange('add-animal')}
+                    onClick={() => navigate('/add-animal')}
                   >
                     <Plus className="w-4 h-4 mr-2"/>
                     İlk Hayvanı Ekle
