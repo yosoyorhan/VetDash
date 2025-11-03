@@ -1,11 +1,14 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom'; // useNavigate'i import et
 import { motion } from 'framer-motion';
 import { ChevronRight, PlusCircle, FileText, MessageSquare } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { generateAvatar } from '@/lib/utils';
 
-const CustomerCard = ({ customer, index, onViewChange }) => {
+const CustomerCard = ({ customer, index }) => { // onViewChange prop'unu kaldır
+  const navigate = useNavigate(); // navigate fonksiyonunu başlat
+
   const getInitials = (name) => {
     if (!name) return '?';
     const names = name.split(' ').filter(Boolean);
@@ -16,9 +19,16 @@ const CustomerCard = ({ customer, index, onViewChange }) => {
   };
 
   const handleActionClick = (e, action) => {
-    e.stopPropagation(); // Prevent card click from firing
+    e.stopPropagation(); // Kartın tıklanmasını engelle
+    // TODO: Bu eylemler için modal veya ilgili sayfalara yönlendirme ekle
     console.log(`${action} for customer ${customer.id}`);
-    // TODO: Implement action logic (e.g., open modal)
+    if (action === 'randevu') {
+        // Örnek: navigate(`/add-appointment?customerId=${customer.id}`);
+    }
+  };
+
+  const handleCardClick = () => {
+    navigate(`/customer/${customer.id}`);
   };
 
   return (
@@ -30,7 +40,7 @@ const CustomerCard = ({ customer, index, onViewChange }) => {
     >
       <Card
         className="p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between hover:shadow-lg cursor-pointer transition-shadow duration-200"
-        onClick={() => onViewChange('customer-profile', customer.id)}
+        onClick={handleCardClick} // Tıklama işleyicisini güncelle
       >
         {/* Left Side: Avatar and Info */}
         <div className="flex items-center gap-4 w-full sm:w-auto">

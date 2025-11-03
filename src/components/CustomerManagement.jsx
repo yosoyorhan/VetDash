@@ -1,14 +1,15 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom'; // useNavigate'i import et
 import { motion } from 'framer-motion';
 import { Plus, Search, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { getCustomersWithBalance } from '@/lib/storage';
 import { toast } from '@/components/ui/use-toast';
-import CustomerCard from '@/components/CustomerCard'; // Yeni kart bileşenini import et
+import CustomerCard from '@/components/CustomerCard';
 
-const CustomerManagement = ({ onViewChange }) => {
+const CustomerManagement = () => { // onViewChange prop'unu kaldır
+  const navigate = useNavigate(); // navigate fonksiyonunu başlat
   const [customers, setCustomers] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
@@ -36,6 +37,15 @@ const CustomerManagement = ({ onViewChange }) => {
     );
   }, [customers, searchTerm]);
 
+  // onViewChange'i navigate ile değiştiren bir wrapper fonksiyonu
+  const handleViewChange = (view, id) => {
+    if (view === 'add-customer') {
+      navigate('/add-customer');
+    } else if (view === 'customer-profile' && id) {
+      navigate(`/customer/${id}`);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <motion.div
@@ -57,7 +67,8 @@ const CustomerManagement = ({ onViewChange }) => {
                     className="pl-10 w-full"
                 />
             </div>
-            <Button className="gap-2" onClick={() => onViewChange('add-customer')}>
+            {/* onClick'i yeni handleViewChange fonksiyonunu kullanacak şekilde güncelle */}
+            <Button className="gap-2" onClick={() => handleViewChange('add-customer')}>
               <Plus className="w-4 h-4" />
               <span className="hidden sm:inline">Yeni Müşteri</span>
             </Button>
@@ -75,7 +86,6 @@ const CustomerManagement = ({ onViewChange }) => {
               key={customer.id}
               customer={customer}
               index={index}
-              onViewChange={onViewChange}
             />
           ))}
         </div>
@@ -85,7 +95,8 @@ const CustomerManagement = ({ onViewChange }) => {
         <div className="text-center py-16">
             <p className="text-xl font-semibold text-foreground">Müşteri Bulunamadı</p>
             <p className="text-muted-foreground mt-2">Aradığınız kriterlere uygun müşteri yok veya henüz müşteri eklemediniz.</p>
-            <Button className="mt-4 gap-2" onClick={() => onViewChange('add-customer')}>
+            {/* onClick'i yeni handleViewChange fonksiyonunu kullanacak şekilde güncelle */}
+            <Button className="mt-4 gap-2" onClick={() => handleViewChange('add-customer')}>
               <Plus className="w-4 h-4" /> Yeni Müşteri Ekle
             </Button>
         </div>
