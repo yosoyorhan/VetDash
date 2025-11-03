@@ -74,7 +74,7 @@ function App() {
                 <Route path="/appointment/:appointmentId/edit" element={<AddAppointmentPage />} />
                 <Route path="/tasks" element={<Tasks />} />
                 <Route path="/inventory" element={<InventoryManagement />} />
-                <Route path="/customers" e lement={<CustomerManagement />} />
+                <Route path="/customers" element={<CustomerManagement />} />
                 <Route path="/customer/:customerId" element={<CustomerProfile />} />
                 <Route path="/add-customer" element={<AddCustomerPage />} />
                 <Route path="/customer/:customerId/edit" element={<AddCustomerPage />} />

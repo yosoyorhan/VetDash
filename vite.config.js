@@ -1,12 +1,9 @@
 import path from 'node:path';
 import react from '@vitejs/plugin-react';
-// Birden fazla olan defineConfig importunu birleştirdim:
-import { createLogger, defineConfig } from 'vite'; 
+import { createLogger, defineConfig } from 'vite';
 import inlineEditPlugin from './plugins/visual-editor/vite-plugin-react-inline-editor.js';
 import editModeDevPlugin from './plugins/visual-editor/vite-plugin-edit-mode.js';
 import iframeRouteRestorationPlugin from './plugins/vite-plugin-iframe-route-restoration.js';
-
-// ---- SİZİN ÖZEL FONKSİYONLARINIZ (Aynen kaldı) ----
 
 const isDev = process.env.NODE_ENV !== 'production';
 
@@ -235,20 +232,14 @@ logger.error = (msg, options) => {
 	loggerError(msg, options);
 }
 
-// ---- ANA VITE KONFİGÜRASYONU ----
-// Sadece bir tane 'export default' olmalı.
 export default defineConfig({
-
-	// 1. GITHUB PAGES İÇİN İSTENEN EKLEME
-	base: '/VetDash/', 
-
-	// 2. SİZİN MEVCUT AYARLARINIZ (Aynen kaldı)
 	customLogger: logger,
 	plugins: [
 		...(isDev ? [inlineEditPlugin(), editModeDevPlugin(), iframeRouteRestorationPlugin()] : []),
 		react(),
 		addTransformIndexHtml
 	],
+    appType: 'spa',
 	server: {
 		cors: true,
 		headers: {
