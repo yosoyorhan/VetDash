@@ -241,7 +241,18 @@ export const getAppointments = async (date) => {
 };
 
 export const getAppointmentById = async (id) => {
-    const { data, error } = await supabase.from('appointments').select(`*, customer:customers(*), animal:animals(*)`).eq('id', id).single();
+    const { data, error } = await supabase
+        .from('appointments')
+        .select(`
+            id,
+            start_time,
+            status,
+            notes,
+            customer:customers (full_name, phone, email),
+            animal:animals (name, species)
+        `)
+        .eq('id', id)
+        .single();
     if (error) throw error;
     return data;
 }

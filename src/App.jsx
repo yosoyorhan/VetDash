@@ -19,6 +19,7 @@ import ServicesManagement from '@/components/ServicesManagement';
 import SettingsPage from '@/components/SettingsPage';
 import HealthRecordPage from '@/components/HealthRecordPage';
 import AddAppointmentPage from '@/components/AddAppointmentPage';
+import AppointmentDetailPage from '@/components/AppointmentDetailPage';
 import PaymentsPage from '@/components/PaymentsPage';
 import AddProductPage from '@/components/AddProductPage';
 import ExpensesPage from '@/components/ExpensesPage';
@@ -69,6 +70,7 @@ function App() {
                 <Route path="/settings" element={<SettingsPage />} />
                 <Route path="/appointments" element={<Appointments />} />
                 <Route path="/add-appointment" element={<AddAppointmentPage />} />
+                <Route path="/appointment/:appointmentId" element={<AppointmentDetailPage />} />
                 <Route path="/appointment/:appointmentId/edit" element={<AddAppointmentPage />} />
                 <Route path="/tasks" element={<Tasks />} />
                 <Route path="/inventory" element={<InventoryManagement />} />

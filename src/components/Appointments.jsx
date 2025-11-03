@@ -150,7 +150,7 @@ const Appointments = () => {
                                     ))}
                                 </DropdownMenuContent>
                            </DropdownMenu>
-                           <Button variant="outline" size="sm" onClick={() => toast({title: "Yakında!"})}>Detaylar</Button>
+                           <Button variant="outline" size="sm" onClick={() => navigate(`/appointment/${apt.id}`)}>Detaylar</Button>
                            <DropdownMenu>
                               <DropdownMenuTrigger asChild><Button variant="ghost" size="icon"><MoreVertical className="w-4 h-4" /></Button></DropdownMenuTrigger>
                               <DropdownMenuContent align="end">
