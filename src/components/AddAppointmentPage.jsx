@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Save, Calendar, Clock, User, PawPrint, Hotel as Hospital, Car, StickyNote, Loader2, UserPlus, CheckCircle, XCircle } from 'lucide-react';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { ArrowLeft, Save, Clock, User, Hotel as Hospital, Car, Loader2, UserPlus, CheckCircle, XCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -17,7 +18,12 @@ const statusConfig = {
   'Tamamlandı': { icon: CheckCircle, color: 'bg-blue-100 text-blue-700', label: 'Tamamlandı' },
 };
 
-const AddAppointmentPage = ({ appointmentId, customerId: preselectedCustomerId, onBack, onSaveSuccess, onViewChange }) => {
+const AddAppointmentPage = () => {
+    const { appointmentId } = useParams();
+    const navigate = useNavigate();
+    const location = useLocation();
+    const preselectedCustomerId = location.state?.customerId;
+
     const [formData, setFormData] = useState({
         customer_id: preselectedCustomerId || '',
         animal_id: null,
@@ -97,7 +103,7 @@ const AddAppointmentPage = ({ appointmentId, customerId: preselectedCustomerId, 
         try {
             await saveAppointment(formData);
             toast({ title: "Başarılı!", description: `Randevu başarıyla ${appointmentId ? 'güncellendi' : 'oluşturuldu'}.` });
-            onSaveSuccess();
+            navigate('/appointments');
         } catch (error) {
             toast({ title: "Kaydetme Başarısız!", description: error.message, variant: "destructive" });
         } finally {
@@ -112,7 +118,7 @@ const AddAppointmentPage = ({ appointmentId, customerId: preselectedCustomerId, 
     return (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
             <header className="flex items-center gap-4">
-                <Button variant="outline" size="icon" className="h-10 w-10" onClick={onBack}>
+                <Button variant="outline" size="icon" className="h-10 w-10" onClick={() => navigate(-1)}>
                     <ArrowLeft className="w-5 h-5" />
                 </Button>
                 <div>
@@ -136,7 +142,7 @@ const AddAppointmentPage = ({ appointmentId, customerId: preselectedCustomerId, 
                                         {customers.map(c => <SelectItem key={c.id} value={c.id}>{c.full_name}</SelectItem>)}
                                     </SelectContent>
                                 </Select>
-                                <Button type="button" variant="outline" size="icon" onClick={() => onViewChange('add-customer', { backTo: 'add-appointment' })}><UserPlus className="w-4 h-4"/></Button>
+                                <Button type="button" variant="outline" size="icon" onClick={() => navigate('/add-customer', { state: { from: location.pathname } })}><UserPlus className="w-4 h-4"/></Button>
                                 </div>
                             </div>
                             <div>
@@ -200,7 +206,7 @@ const AddAppointmentPage = ({ appointmentId, customerId: preselectedCustomerId, 
 
                     </CardContent>
                     <div className="p-6 pt-0 flex justify-end gap-2">
-                        <Button type="button" variant="ghost" onClick={onBack} disabled={isSaving}>İptal</Button>
+                        <Button type="button" variant="ghost" onClick={() => navigate(-1)} disabled={isSaving}>İptal</Button>
                         <Button type="submit" disabled={isSaving}>
                             {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <Save className="mr-2 h-4 w-4"/>}
                             Kaydet

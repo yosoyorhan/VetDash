@@ -1,14 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Loader2, UserPlus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from '@/components/ui/use-toast';
 import { getCustomerById, saveCustomer } from '@/lib/storage';
 
-const AddCustomerPage = ({ customerId, onBack, onSaveSuccess }) => {
+const AddCustomerPage = () => {
+    const { customerId } = useParams();
+    const navigate = useNavigate();
     const [formData, setFormData] = useState({ full_name: '', email: '', phone: '', address: '' });
     const [isSaving, setIsSaving] = useState(false);
     const [loading, setLoading] = useState(true);
@@ -23,7 +26,7 @@ const AddCustomerPage = ({ customerId, onBack, onSaveSuccess }) => {
                         setFormData(customer);
                     } else {
                         toast({ title: "Hata", description: "Müşteri bulunamadı.", variant: "destructive" });
-                        onBack();
+                        navigate('/customers');
                     }
                 } catch (error) {
                     toast({ title: "Hata", description: "Müşteri bilgileri yüklenemedi.", variant: "destructive" });
@@ -32,7 +35,7 @@ const AddCustomerPage = ({ customerId, onBack, onSaveSuccess }) => {
             setLoading(false);
         };
         loadCustomer();
-    }, [customerId, isEditMode, onBack]);
+    }, [customerId, isEditMode, navigate]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -40,7 +43,11 @@ const AddCustomerPage = ({ customerId, onBack, onSaveSuccess }) => {
         try {
             const savedData = await saveCustomer(formData);
             toast({ title: "Başarılı!", description: `Müşteri başarıyla ${isEditMode ? 'güncellendi' : 'kaydedildi'}.` });
-            onSaveSuccess(savedData.id);
+            if (isEditMode) {
+                navigate(`/customer/${customerId}`);
+            } else {
+                navigate('/customers');
+            }
         } catch (error) {
             toast({ title: "Hata!", description: error.message, variant: "destructive" });
         } finally {
@@ -53,7 +60,7 @@ const AddCustomerPage = ({ customerId, onBack, onSaveSuccess }) => {
     return (
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
             <header className="flex items-center gap-4">
-                <Button variant="outline" size="icon" onClick={onBack}><ArrowLeft className="w-4 h-4" /></Button>
+                <Button variant="outline" size="icon" onClick={() => navigate(-1)}><ArrowLeft className="w-4 h-4" /></Button>
                 <div>
                     <h1 className="text-3xl font-bold">{isEditMode ? 'Müşteriyi Düzenle' : 'Yeni Müşteri Ekle'}</h1>
                     <p className="text-muted-foreground">{isEditMode ? 'Müşteri bilgilerini güncelleyin.' : 'Sisteme yeni bir müşteri ekleyin.'}</p>
@@ -79,7 +86,7 @@ const AddCustomerPage = ({ customerId, onBack, onSaveSuccess }) => {
                             <Input id="address" value={formData.address || ''} onChange={(e) => setFormData({ ...formData, address: e.target.value })} />
                         </div>
                         <div className="flex justify-end gap-2 pt-4">
-                            <Button type="button" variant="ghost" onClick={onBack} disabled={isSaving}>İptal</Button>
+                            <Button type="button" variant="ghost" onClick={() => navigate(-1)} disabled={isSaving}>İptal</Button>
                             <Button type="submit" disabled={isSaving}>
                                 {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <UserPlus className="mr-2 h-4 w-4" />}
                                 {isEditMode ? 'Güncelle' : 'Kaydet'}

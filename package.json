@@ -34,9 +34,10 @@
     "react-dom": "^18.2.0",
     "react-helmet": "^6.1.0",
     "react-markdown": "^9.0.1",
-    "remark-gfm": "^4.0.0",
+    "react-router-dom": "^7.9.5",
     "recharts": "^2.15.0",
     "rehype-sanitize": "^6.0.0",
+    "remark-gfm": "^4.0.0",
     "tailwind-merge": "^1.14.0",
     "tailwindcss-animate": "^1.0.7"
   },
