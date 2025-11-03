@@ -239,7 +239,6 @@ export default defineConfig({
 		react(),
 		addTransformIndexHtml
 	],
-    appType: 'spa',
 	server: {
 		cors: true,
 		headers: {
