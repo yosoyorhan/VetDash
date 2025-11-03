@@ -7,6 +7,17 @@ import iframeRouteRestorationPlugin from './plugins/vite-plugin-iframe-route-res
 
 const isDev = process.env.NODE_ENV !== 'production';
 
+// --- YENİ EKLENEN KOŞULLU MANTIK ---
+// Vercel, build sırasında 'VERCEL_ENV' adında bir ortam değişkeni ayarlar.
+// GitHub Actions veya yerel build'lerde bu değişken 'undefined' (tanımsız) olur.
+const isVercel = process.env.VERCEL_ENV;
+
+// 1. Vercel'de deploy ediliyorsa (isVercel = true) -> '/'
+// 2. Yerelde 'npm run dev' ile çalışıyorsa (isDev = true) -> '/'
+// 3. Diğer tüm durumlarda (yani GitHub Actions ile 'npm run build') -> '/VetDas2/'
+const baseUrl = (isVercel || isDev) ? '/' : '/VetDas2/';
+// --- YENİ MANTIK SONU ---
+
 const configHorizonsViteErrorHandler = `
 const observer = new MutationObserver((mutations) => {
 	for (const mutation of mutations) {
@@ -233,9 +244,10 @@ logger.error = (msg, options) => {
 }
 
 export default defineConfig({
+	base: baseUrl, // <-- DEĞİŞİKLİK BURADA: Koşullu 'base' ayarı kullanıldı.
 	customLogger: logger,
 	plugins: [
-		// ...(isDev ? [inlineEditPlugin(), editModeDevPlugin(), iframeRouteRestorationPlugin()] : []),
+		...(isDev ? [inlineEditPlugin(), editModeDevPlugin(), iframeRouteRestorationPlugin()] : []),
 		react(),
 		addTransformIndexHtml
 	],
